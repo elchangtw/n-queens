@@ -14,55 +14,90 @@
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n rooks placed such that none of them can attack each other
 
 window.findNRooksSolution = function(n) {
-  var solution = new Board({n:n});
+  var solution = [];
+  var board  = new Board({'n':n});
+  // var rooksViable = function(board) {
+  //   return !( board.hasAnyRowConflicts() || board.hasAnyColConflicts() );
+  // }
+  //board = this.rows(); //gets whole matrix as arrays
 
-  var rooksViable = function(board) {
-    return !( board.hasAnyRowConflicts() || board.hasAnyColConflicts() );
-  }
+  var findNRooksSolutionHelper = function(currBoard, currRow) {
+    if(currRow < n) {
 
-  var findNRooksSolutionHelper = function(currBoard, step) {
-    
-    if( !rooksViable(currBoard) ){
-      return false; //do nothing?
-    } else if ( step === n ){
-      // solution = currboard?
-    } else{
-      //recurse something
+      for( var i = 0; i < n; i++ ) { //i refers to col
+        //set row[i] to 1
+        var row = currBoard.get(currRow);
+        row[i] = 1;
+        currBoard.set(currRow, row);
 
-      for( var i = 0; i < n; i++ ) {
-        for( var j = 0; j < n; j++ ) {
-          //var nextBoard, set board with new item, step++
-          //findNRooksSolutionHelper(nextBoard, step);
+        //if hasConflicts, set row[i] to 0
+        if ( currBoard.hasAnyColConflicts() ) {
+          row[i] = 0;
+          currBoard.set(currRow, row);
+        } else {
+          if( currRow+1 < n ) {
+            currRow++;
+            findNRooksSolutionHelper(currBoard, currRow);
+          } else {
+            return currBoard.rows();
+          }
         }
       }
     }
-
-    /////////////////////////////////////////////////////////////
-    for( var i = 0; i < n; i++ ) {
-      for( var j = 0; j < n; j++ ) {
-        var row = currBoard.get(i);
-        if( !row[j] ){
-          // if rooksViable true, set rook in row column
-          // var futureBoard = Object.create(currBoard);
-          // futureBoard.set()
-          // set currBoard at i j with rook
-          // check currBoard with rooksViable
-          // - if true recurse
-          // - if false remove rook
-        }
-      }
-    }
+    //  else {
+    //   return currBoard;
+    // }
   }
 
-  findNRooksSolutionHelper(solution, 0);
+  solution = findNRooksSolutionHelper(board, 0);
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
+  if(solution === undefined) {
+    return [];
+  }
   return solution;
 };
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  var solutionCount = undefined; //fixme
+  var solutionCount = 0; //fixme
+  var board  = new Board({'n':n});
 
+  // var rooksViable = function(board) {
+  //   return !( board.hasAnyRowConflicts() || board.hasAnyColConflicts() );
+  // }
+  //board = this.rows(); //gets whole matrix as arrays
+
+  var findNRooksSolutionHelper = function(currBoard, currRow) {
+    if(currRow < n) {
+      for( var i = 0; i < n; i++ ) { //i refers to col
+        //set row[i] to 1
+        var row = currBoard.get(currRow);
+        if(i>0) row[i-1] = 0;
+        row[i] = 1;
+        currBoard.set(currRow, row);
+
+        //if hasConflicts, set row[i] to 0
+        if ( currBoard.hasAnyColConflicts() ) {
+          row[i] = 0;
+          currBoard.set(currRow, row);
+        } else {
+          if( currRow+1 < n ) {
+            currRow++;
+            findNRooksSolutionHelper(currBoard, currRow);
+          } else {
+            var temp = currBoard.rows(); //remove when working
+            console.log(temp); //remove when working
+            solutionCount++;
+          }
+        }
+
+        //reset board
+        row[i] = 0;
+        currBoard.set(currRow, row);
+      }
+    }
+  }
+  findNRooksSolutionHelper(board, 0);
   console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
   return solutionCount;
 };
