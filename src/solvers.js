@@ -15,7 +15,8 @@
 
 window.findNRooksSolution = function(n) {
   var solution = [];
-  var board  = new Board({'n':n});
+  var board = new Board({'n':n});
+  var solutionFound = false;
   // var rooksViable = function(board) {
   //   return !( board.hasAnyRowConflicts() || board.hasAnyColConflicts() );
   // }
@@ -23,30 +24,25 @@ window.findNRooksSolution = function(n) {
 
   var findNRooksSolutionHelper = function(currBoard, currRow) {
     if(currRow < n) {
-
+      var row = currBoard.get(currRow);
       for( var i = 0; i < n; i++ ) { //i refers to col
-        //set row[i] to 1
-        var row = currBoard.get(currRow);
         row[i] = 1;
         currBoard.set(currRow, row);
 
-        //if hasConflicts, set row[i] to 0
+        //if hasConflicts, set row[i] to 0, else recurse
         if ( currBoard.hasAnyColConflicts() ) {
           row[i] = 0;
           currBoard.set(currRow, row);
         } else {
-          if( currRow+1 < n ) {
-            currRow++;
-            findNRooksSolutionHelper(currBoard, currRow);
-          } else {
-            return currBoard.rows();
-          }
+          return findNRooksSolutionHelper(currBoard, currRow + 1);
         }
+        //reset board
+        row[i] = 0;
+        currBoard.set(currRow, row);
       }
+    } else {
+      return currBoard.rows();
     }
-    //  else {
-    //   return currBoard;
-    // }
   }
 
   solution = findNRooksSolutionHelper(board, 0);
@@ -62,39 +58,27 @@ window.countNRooksSolutions = function(n) {
   var solutionCount = 0; //fixme
   var board  = new Board({'n':n});
 
-  // var rooksViable = function(board) {
-  //   return !( board.hasAnyRowConflicts() || board.hasAnyColConflicts() );
-  // }
-  //board = this.rows(); //gets whole matrix as arrays
-
   var findNRooksSolutionHelper = function(currBoard, currRow) {
     if(currRow < n) {
+      var row = currBoard.get(currRow);
       for( var i = 0; i < n; i++ ) { //i refers to col
-        //set row[i] to 1
-        var row = currBoard.get(currRow);
-        if(i>0) row[i-1] = 0;
         row[i] = 1;
         currBoard.set(currRow, row);
 
-        //if hasConflicts, set row[i] to 0
+        //if hasConflicts, set row[i] to 0, else recurse
         if ( currBoard.hasAnyColConflicts() ) {
           row[i] = 0;
           currBoard.set(currRow, row);
         } else {
-          if( currRow+1 < n ) {
-            currRow++;
-            findNRooksSolutionHelper(currBoard, currRow);
-          } else {
-            var temp = currBoard.rows(); //remove when working
-            console.log(temp); //remove when working
-            solutionCount++;
-          }
+          findNRooksSolutionHelper(currBoard, currRow + 1);
         }
-
         //reset board
         row[i] = 0;
         currBoard.set(currRow, row);
       }
+    } else {
+      var temp = currBoard.rows();
+      solutionCount++;
     }
   }
   findNRooksSolutionHelper(board, 0);
